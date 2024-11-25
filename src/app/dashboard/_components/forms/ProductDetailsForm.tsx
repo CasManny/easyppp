@@ -1,10 +1,11 @@
-"use client"
- 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+"use client";
 
-import { Button } from "@/components/ui/button"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,48 +14,96 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
- 
-const formSchema = z.object({
-  name: z.string()
-})
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { productDetailSchema } from "@/schema/products";
+import { createProduct } from "@/server/actions/products";
 
 const ProductDetailsForm = () => {
+  const { toast } = useToast();
+  const form = useForm<z.infer<typeof productDetailSchema>>({
+    resolver: zodResolver(productDetailSchema),
+    defaultValues: {
+      name: "",
+      url: "",
+      description: "",
+    },
+  });
 
-    const form = useForm<z.infer<typeof formSchema>>({
-      resolver: zodResolver(formSchema),
-      defaultValues: {
-        name: "",
-      },
-    })
-   
-    function onSubmit(values: z.infer<typeof formSchema>) {
-      console.log(values)
+  async function onSubmit(values: z.infer<typeof productDetailSchema>) {
+    const data = await createProduct(values);
+    if (data?.message) {
+      toast({
+        title: data?.error ? "Error" : "success",
+        description: data?.message,
+        variant: data?.error ? "destructive" : "default",
+      });
     }
+  }
   return (
     <Form {...form}>
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-      <FormField
-        control={form.control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Username</FormLabel>
-            <FormControl>
-              <Input placeholder="shadcn" {...field} />
-            </FormControl>
-            <FormDescription>
-              This is your public display name.
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <Button type="submit">Submit</Button>
-    </form>
-  </Form>
-  )
-}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 w-full">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem className="">
+                <FormLabel>Product name</FormLabel>
+                <FormControl className="w-full">
+                  <Input placeholder="" {...field} className="" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="url"
+            render={({ field }) => (
+              <FormItem className="">
+                <FormLabel>Enter your website Url</FormLabel>
+                <FormControl className="w-full">
+                  <Input placeholder="url" {...field} className="" />
+                </FormControl>
+                <FormDescription>
+                  Include the protocol (http/https) and the full path to the
+                  sales page
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Product description</FormLabel>
+              <FormControl>
+                <Textarea className="min-h-20 resize-none" {...field} />
+              </FormControl>
+              <FormDescription>
+                An optional description to help distinguish your product from
+                other product
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="self-end">
+          <Button
+            type="submit"
+            disabled={form.formState.isSubmitting}
+          >
+            Submit
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+};
 
-export default ProductDetailsForm
+export default ProductDetailsForm;
