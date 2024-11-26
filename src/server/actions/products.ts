@@ -1,23 +1,25 @@
 "use server";
 
-import { productCountryDiscountsSchema, productDetailSchema } from "@/schema/products";
+import { productCountryDiscountsSchema, productCustomizationSchema, productDetailSchema } from "@/schema/products";
 import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { db } from "@/drizzle/db";
 import { ProductTable } from "@/drizzle/schema";
-import { createProductCustomization, deleteProductDb, updateCountryDiscountsDb } from "../db/products";
+import { createProductCustomization, deleteProductDb, updateCountryDiscountsDb, updateProductCustomizationDb } from "../db/products";
 import { redirect } from "next/navigation";
 import { revalidateTag } from "next/cache";
 import { CACHE_TAG, revalidateDbCache } from "@/lib/cache";
 import { and, eq } from "drizzle-orm";
+import { canCreateProduct, canCustomizeBanner } from "../permission";
 
 export const createProduct = async (
   unsafeData: z.infer<typeof productDetailSchema>
 ): Promise<{ error: boolean; message: string } | undefined> => {
   const { userId } = await auth();
-  const { success, data } = productDetailSchema.safeParse(unsafeData);
+    const { success, data } = productDetailSchema.safeParse(unsafeData);
+    const canCreate = await canCreateProduct(userId!)
 
-  if (!success || userId == null) {
+  if (!success || userId == null || !canCreate) {
     return { error: true, message: "There was error creating your product" };
   }
 
@@ -120,4 +122,18 @@ export const updateCountryDiscounts = async (id: string, unsafeData: z.infer<typ
 
 
 
+}
+
+export const updateProductCustomization = async (id: string, unsafeData: z.infer<typeof productCustomizationSchema>) => {
+    const { userId } = await auth()
+    const { success, data } = productCustomizationSchema.safeParse(unsafeData)
+    const canCustomize = await canCustomizeBanner(userId!)
+    
+    if (!success || userId == null || !canCustomize) {
+        return { error: true, message: "There was an error updating your banner"}
+    }
+
+    await updateProductCustomizationDb(data, { productId: id, userId })
+    
+    return { error: false, message: "Banner updated"}
 }

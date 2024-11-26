@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { productDetailSchema } from "@/schema/products";
 import { createProduct, updateProduct } from "@/server/actions/products";
 import { ProductTable } from "@/drizzle/schema";
+import RequiredLabelIcon from "@/components/RequiredLabelIcon";
 
 interface ProductDetailsFormProps {
   product?: typeof ProductTable.$inferSelect;
@@ -61,7 +62,7 @@ const ProductDetailsForm = ({ product }: ProductDetailsFormProps) => {
             name="name"
             render={({ field }) => (
               <FormItem className="">
-                <FormLabel>Product name</FormLabel>
+                <FormLabel>Product name <RequiredLabelIcon /> </FormLabel>
                 <FormControl className="w-full">
                   <Input placeholder="" {...field} className="" />
                 </FormControl>
@@ -74,7 +75,7 @@ const ProductDetailsForm = ({ product }: ProductDetailsFormProps) => {
             name="url"
             render={({ field }) => (
               <FormItem className="">
-                <FormLabel>Enter your website Url</FormLabel>
+                <FormLabel>Enter your website Url <RequiredLabelIcon /> </FormLabel>
                 <FormControl className="w-full">
                   <Input placeholder="url" {...field} className="" />
                 </FormControl>

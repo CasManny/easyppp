@@ -42,7 +42,7 @@ const ProductEditPage = async ({
           <CountryTab productId={product.id} userId={userId} />
         </TabsContent>
         <TabsContent value="customization" className="w-full">
-          <CustomizationTabs />
+          <CustomizationTabs productId={product.id} userId={userId} />
         </TabsContent>
       </Tabs>
     </PageWithBackButton>
