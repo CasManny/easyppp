@@ -9,6 +9,9 @@ export type ValidTags =
 export const CACHE_TAG = {
   products: "products",
   productViews: "productViews",
+  subscription: "subscription",
+  countries: "countries",
+  countryGroup: "countryGroup",
 } as const;
 
 export const getGlobalTag = (tag: keyof typeof CACHE_TAG) => {
@@ -34,13 +37,21 @@ export const dbCache = <T extends (...args: any[]) => Promise<any>>(
   return cache(unstable_cache<T>(cb, undefined, { tags: [...tags, "*"] }));
 };
 
-export const revalidateDbCache = ({tag, userId, id}: { tag:keyof typeof CACHE_TAG, userId?: string, id?: string}) => {
-    revalidateTag(getGlobalTag(tag))
-    if (userId != null) {
-        revalidateTag(getUserTag(userId, tag))
-    }
+export const revalidateDbCache = ({
+  tag,
+  userId,
+  id,
+}: {
+  tag: keyof typeof CACHE_TAG;
+  userId?: string;
+  id?: string;
+}) => {
+  revalidateTag(getGlobalTag(tag));
+  if (userId != null) {
+    revalidateTag(getUserTag(userId, tag));
+  }
 
-    if (id != null) {
-        revalidateTag(getIdTag(id, tag))
-    }
-}
+  if (id != null) {
+    revalidateTag(getIdTag(id, tag));
+  }
+};

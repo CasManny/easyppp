@@ -18,21 +18,32 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { productDetailSchema } from "@/schema/products";
-import { createProduct } from "@/server/actions/products";
+import { createProduct, updateProduct } from "@/server/actions/products";
+import { ProductTable } from "@/drizzle/schema";
 
-const ProductDetailsForm = () => {
+interface ProductDetailsFormProps {
+  product?: typeof ProductTable.$inferSelect;
+}
+
+const ProductDetailsForm = ({ product }: ProductDetailsFormProps) => {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof productDetailSchema>>({
     resolver: zodResolver(productDetailSchema),
-    defaultValues: {
-      name: "",
-      url: "",
-      description: "",
-    },
+    defaultValues: product
+      ? { ...product, description: product.description ?? "" }
+      : {
+          name: "",
+          description: "",
+          url: "",
+        },
   });
 
   async function onSubmit(values: z.infer<typeof productDetailSchema>) {
-    const data = await createProduct(values);
+    const action =
+      product == null
+        ? createProduct
+        : updateProduct.bind(null, { id: product.id });
+    const data = await action(values);
     if (data?.message) {
       toast({
         title: data?.error ? "Error" : "success",
@@ -94,10 +105,7 @@ const ProductDetailsForm = () => {
           )}
         />
         <div className="self-end">
-          <Button
-            type="submit"
-            disabled={form.formState.isSubmitting}
-          >
+          <Button type="submit" disabled={form.formState.isSubmitting}>
             Submit
           </Button>
         </div>
