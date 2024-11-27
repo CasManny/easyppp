@@ -2,10 +2,16 @@ import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { env } from "@/data/env/server";
-import { createUserSubscription } from "@/server/db/subscription";
+import {
+  createUserSubscription,
+  getUserSubscription,
+} from "@/server/db/subscription";
 import { db } from "@/drizzle/db";
-import { userSubscriptionTable } from "@/drizzle/schema";
 import { deleteUser } from "@/server/db/users";
+import { Stripe } from "stripe";
+import { UserSubscriptionTable } from "@/drizzle/schema";
+
+const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
 export async function POST(req: Request) {
   const SIGNING_SECRET = env.SIGNING_SECRET;
@@ -56,7 +62,7 @@ export async function POST(req: Request) {
   // For this guide, log payload to console
   switch (evt.type) {
     case "user.created": {
-      await db.insert(userSubscriptionTable).values({
+      await db.insert(UserSubscriptionTable).values({
         clerkUserId: evt.data.id,
         tier: "Free",
       });
@@ -64,6 +70,10 @@ export async function POST(req: Request) {
     }
     case "user.deleted": {
       if (evt.data.id != null) {
+        const userSubscription = await getUserSubscription(evt.data.id);
+        if (userSubscription?.stripeSubscriptionId != null) {
+          stripe.subscriptions.cancel(userSubscription.stripeSubscriptionId);
+        }
         await deleteUser(evt.data.id);
       }
     }

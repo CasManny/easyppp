@@ -74,8 +74,8 @@ export default function Home() {
           Pricing software which pays for itself 20x over
         </h4>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-screen-xl mx-auto">
-          {subscriptionTiersInOrder.map((tire) => (
-            <PricingCard key={tire.name} tire={tire} />
+          {subscriptionTiersInOrder.map((tier) => (
+            <PricingCard key={tier.name} tier={tier} />
           ))}
         </div>
       </section>

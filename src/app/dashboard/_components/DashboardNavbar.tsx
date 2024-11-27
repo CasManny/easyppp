@@ -14,7 +14,7 @@ const links = [
   },
   {
     label: "Subscription",
-    href: "/subcription",
+    href: "/subscription",
   },
 ];
 
@@ -26,7 +26,7 @@ const DashboardNavbar = () => {
           <BrandLogo />
         </Link>
         {links.map((link, index) => (
-          <Link href={`/dashboard/${link.href}`} key={index}>{link.label}</Link>
+          <Link href={`/dashboard${link.href}`} key={index}>{link.label}</Link>
         ))}
         <UserButton />
       </nav>

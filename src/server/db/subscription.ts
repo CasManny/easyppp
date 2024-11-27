@@ -2,7 +2,7 @@ import { subscriptionTiers } from "@/data/subscription";
 import { db } from "@/drizzle/db";
 import { UserSubscriptionTable } from "@/drizzle/schema";
 import { CACHE_TAG, dbCache, getUserTag, revalidateDbCache } from "@/lib/cache";
-import { eq } from "drizzle-orm";
+import { eq, SQL } from "drizzle-orm";
 
 export const createUserSubscription = async (
   data: typeof UserSubscriptionTable.$inferSelect
@@ -50,4 +50,15 @@ export const getUserSubscriptionInternal = (userId: string) => {
     return db.query.UserSubscriptionTable.findFirst({
         where: eq(UserSubscriptionTable.clerkUserId, userId)
     })
+}
+
+export const updateUserSubscription = async (where: SQL, data: Partial<typeof UserSubscriptionTable.$inferSelect>) => {
+    const [updatedSubscription] = await db.update(UserSubscriptionTable).set(data).where(where).returning({ id: UserSubscriptionTable.id, userId: UserSubscriptionTable.clerkUserId })
+    if (updateUserSubscription != null) {
+        revalidateDbCache({
+            tag: CACHE_TAG.subscription,
+            userId: updatedSubscription.userId,
+            id: updatedSubscription.id
+        })
+    }
 }

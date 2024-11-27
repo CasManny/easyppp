@@ -29,7 +29,7 @@ const ProductEditPage = async ({
       backButtonHref="/dashboard/products"
       pageTitle="Edit product"
     >
-      <Tabs defaultValue={searchParams.tab} className="w-full">
+      <Tabs defaultValue={searchParams?.tab} className="w-full">
         <TabsList className="bg-background/60">
           <TabsTrigger value="details">Details</TabsTrigger>
           <TabsTrigger value="country">Country</TabsTrigger>

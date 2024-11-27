@@ -13,7 +13,7 @@ import { Check } from "lucide-react";
 import { ReactNode } from "react";
 
 interface PricingCardProps {
-  tire: {
+  tier: {
     name: string;
     priceInCents: number;
     maxNumberOfProducts: number;
@@ -24,7 +24,7 @@ interface PricingCardProps {
   };
 }
 
-const PricingCard = ({ tire }: PricingCardProps) => {
+const PricingCard = ({ tier }: PricingCardProps) => {
   const {
     priceInCents,
     maxNumberOfProducts,
@@ -33,7 +33,7 @@ const PricingCard = ({ tire }: PricingCardProps) => {
     canCustomizeBanner,
     canRemoveBranding,
     name,
-  } = tire;
+  } = tier;
 
   const mostPopular = name === "Standard";
   return (

@@ -65,7 +65,7 @@ const ProductCustomizationForm = ({
   return (
     <>
       <div>
-        <Banner
+        {/* <Banner
           message={formValues.locationMessage}
           mappings={{
             country: "India",
@@ -74,7 +74,7 @@ const ProductCustomizationForm = ({
           }}
           customization={formValues}
           canRemoveBranding={canRemoveBranding}
-        />
+        /> */}
       </div>
       {!canCustomizeBanner && (
         <div className="mt-8">
